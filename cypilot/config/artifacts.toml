@@ -5,7 +5,10 @@ name = "CyberWiki"
 slug = "cyberwiki"
 kit = "sdlc"
 artifacts = []
-codebase = []
+codebase = [
+  { name = "Backend (Django)", path = "src", extensions = [".py"], source = "cyber-wiki-back" },
+  { name = "Frontend (React/TypeScript)", path = "src", extensions = [".ts", ".tsx"], source = "cyber-wiki-front" },
+]
 children = []
 
 [[systems.autodetect]]

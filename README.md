@@ -27,7 +27,7 @@ From this repository root:
 ```
 
 This will:
-1. Start the backend on http://localhost:8000
+1. Start the backend on http://localhost:8888
 2. Start the frontend on http://localhost:5173
 3. Auto-create admin user (admin/admin)
 4. Run migrations automatically
@@ -88,10 +88,10 @@ cyber-wiki/                          # Main repo (this one)
 Django REST API with 70+ endpoints, 18 models, and comprehensive test coverage.
 
 **Endpoints**:
-- API: http://localhost:8000/api/
-- Admin: http://localhost:8000/admin/ (credentials: `admin`/`admin`)
-- Swagger Docs: http://localhost:8000/api/docs/
-- ReDoc: http://localhost:8000/api/redoc/
+- API: http://localhost:8888/api/
+- Admin: http://localhost:8888/admin/ (credentials: `admin`/`admin`)
+- Swagger Docs: http://localhost:8888/api/docs/
+- ReDoc: http://localhost:8888/api/redoc/
 
 **Core Features**:
 - ✅ Token-based authentication (Bearer tokens)

@@ -9,9 +9,9 @@ cd "$REPO_ROOT"
 
 echo "Starting cyber-wiki locally (multi-repo setup)..."
 
-# Kill any existing processes on ports 8000 and 5173
-echo "Checking for existing processes on ports 8000 and 5173..."
-lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+# Kill any existing processes on ports 8888 and 5173
+echo "Checking for existing processes on ports 8888 and 5173..."
+lsof -ti:8888 | xargs kill -9 2>/dev/null || true
 lsof -ti:5173 | xargs kill -9 2>/dev/null || true
 sleep 1
 
@@ -43,12 +43,12 @@ else
 fi
 
 # Set environment variables
-export REACT_APP_AUTH_API_URL=http://localhost:8000
+export REACT_APP_AUTH_API_URL=http://localhost:8888
 export REACT_APP_VERSION=$(cat VERSION 2>/dev/null || echo "0.1.0")
 export REACT_APP_BUILD_REF=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
 
 # Start backend in background
-echo "Starting backend on :8000..."
+echo "Starting backend on :8888..."
 (
   cd "$BACKEND_PATH"
   if [ -f "venv/bin/activate" ]; then
@@ -66,7 +66,7 @@ except User.DoesNotExist:
     User.objects.create_superuser('admin', 'admin@example.com', 'admin')
     print('Created default admin user (admin/admin)')
 "
-  python manage.py runserver 0.0.0.0:8000
+  python manage.py runserver 0.0.0.0:8888
 ) &
 
 BACKEND_PID=$!
@@ -88,21 +88,21 @@ if [ -d "$FRONTEND_PATH" ] && [ -f "$FRONTEND_PATH/package.json" ]; then
   echo "🚀 CyberWiki Local Development"
   echo "=========================================="
   echo ""
-  echo "Backend:  http://localhost:8000"
+  echo "Backend:  http://localhost:8888"
   echo "Frontend: http://localhost:5173 (starting...)"
   echo ""
   echo "Backend endpoints:"
-  echo "  - API:        http://localhost:8000/api/"
-  echo "  - Admin:      http://localhost:8000/admin/ (admin/admin)"
-  echo "  - API Docs:   http://localhost:8000/api/docs/"
-  echo "  - ReDoc:      http://localhost:8000/api/redoc/"
+  echo "  - API:        http://localhost:8888/api/"
+  echo "  - Admin:      http://localhost:8888/admin/ (admin/admin)"
+  echo "  - API Docs:   http://localhost:8888/api/docs/"
+  echo "  - ReDoc:      http://localhost:8888/api/redoc/"
   echo ""
   echo "Press Ctrl+C to stop both servers"
   echo "=========================================="
   echo ""
   
   cd "$FRONTEND_PATH"
-  npm run dev
+  npm run dev:all
 else
   if [ ! -d "$FRONTEND_PATH" ]; then
     echo "Warning: Frontend repo not found at $FRONTEND_PATH"
@@ -110,13 +110,13 @@ else
     echo "Warning: Frontend not yet configured (no package.json found)"
   fi
   echo ""
-  echo "✅ Backend is running on http://localhost:8000"
+  echo "✅ Backend is running on http://localhost:8888"
   echo ""
   echo "Available endpoints:"
-  echo "  - API:        http://localhost:8000/api/"
-  echo "  - Admin:      http://localhost:8000/admin/ (admin/admin)"
-  echo "  - API Docs:   http://localhost:8000/api/docs/"
-  echo "  - Health:     http://localhost:8000/api/users/health/"
+  echo "  - API:        http://localhost:8888/api/"
+  echo "  - Admin:      http://localhost:8888/admin/ (admin/admin)"
+  echo "  - API Docs:   http://localhost:8888/api/docs/"
+  echo "  - Health:     http://localhost:8888/api/users/health/"
   echo ""
   echo "Press Ctrl+C to stop"
   wait "$BACKEND_PID"
