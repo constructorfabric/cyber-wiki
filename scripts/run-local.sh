@@ -57,14 +57,21 @@ echo "Starting backend on :8888..."
   python manage.py migrate --noinput
   python manage.py shell -c "
 from django.contrib.auth.models import User
+from users.models import UserProfile, UserRole
 try:
     admin = User.objects.get(username='admin')
     admin.set_password('admin')
     admin.save()
     print('Updated admin user password (admin/admin)')
 except User.DoesNotExist:
-    User.objects.create_superuser('admin', 'admin@example.com', 'admin')
+    admin = User.objects.create_superuser('admin', 'admin@example.com', 'admin')
     print('Created default admin user (admin/admin)')
+
+profile, _ = UserProfile.objects.get_or_create(user=admin)
+if profile.role != UserRole.ADMIN:
+    profile.role = UserRole.ADMIN
+    profile.save()
+    print('Set admin profile role -> admin')
 "
   python manage.py runserver 0.0.0.0:8888
 ) &
