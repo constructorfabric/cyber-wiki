@@ -70,7 +70,7 @@ done
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-BACKEND_DIR="$PROJECT_ROOT/.workspace-sources/cyberfabric/cyber-wiki-back"
+BACKEND_DIR="$PROJECT_ROOT/wsrc/constructorfabric/cyber-wiki-back"
 
 if [ "$COVERAGE" = true ]; then
     echo -e "${BLUE}📊 CyberWiki Backend Tests with Coverage${NC}"

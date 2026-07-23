@@ -6,8 +6,8 @@ Collaborative documentation platform with Git integration - convert your git cod
 
 This repository contains documentation and deployment scripts for the CyberWiki project. The actual source code is organized in separate repositories:
 
-- **Backend**: `.workspace-sources/cyberfabric/cyber-wiki-back` - Django REST API
-- **Frontend**: `.workspace-sources/cyberfabric/cyber-wiki-front` - React web application
+- **Backend**: `wsrc/constructorfabric/cyber-wiki-back` - Django REST API
+- **Frontend**: `wsrc/constructorfabric/cyber-wiki-front` - React web application
 - **Docs**: `docs/` - Technical specifications and design documents
 
 ## Quick Start
@@ -34,16 +34,14 @@ This will:
 
 ### First Time Setup
 
-1. **Clone the workspace sources** (if not already cloned):
+1. **Sync the workspace sources** (if not already present):
    ```bash
-   cd .workspace-sources/cyberfabric
-   git clone https://github.com/cyberfabric/cyber-wiki-back
-   git clone https://github.com/cyberfabric/cyber-wiki-front
+   cfs workspace-sync
    ```
 
 2. **Setup backend**:
    ```bash
-   cd .workspace-sources/cyberfabric/cyber-wiki-back
+   cd wsrc/constructorfabric/cyber-wiki-back
    python3 -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt
@@ -52,7 +50,7 @@ This will:
 
 3. **Setup frontend** (when available):
    ```bash
-   cd .workspace-sources/cyberfabric/cyber-wiki-front
+   cd wsrc/constructorfabric/cyber-wiki-front
    npm install
    ```
 
@@ -74,11 +72,11 @@ cyber-wiki/                          # Main repo (this one)
 │       └── GAPS.md                  # Implementation gaps
 ├── scripts/                         # Deployment & utility scripts
 │   └── run-local.sh                 # Local development runner
-├── .workspace-sources/              # Linked source repositories
-│   └── cyberfabric/
+├── wsrc/                            # Workspace source repositories
+│   └── constructorfabric/
 │       ├── cyber-wiki-back/         # Backend Django app
 │       └── cyber-wiki-front/        # Frontend React app
-└── .cypilot-workspace.toml          # Workspace configuration
+└── .cf-workspace.toml               # Workspace configuration
 ```
 
 ## Development Status
@@ -137,6 +135,6 @@ React application built with hai3 framework and OpenSpec workflow.
 ## Contributing
 
 This is a multi-repo workspace. When making changes:
-1. Backend changes go in `.workspace-sources/cyberfabric/cyber-wiki-back`
-2. Frontend changes go in `.workspace-sources/cyberfabric/cyber-wiki-front`
+1. Backend changes go in `wsrc/constructorfabric/cyber-wiki-back`
+2. Frontend changes go in `wsrc/constructorfabric/cyber-wiki-front`
 3. Documentation and deployment scripts go in this main repo

@@ -185,6 +185,13 @@ This ADR records the accepted choice of the Dynamic/API integration pattern and 
 - Implement graceful degradation when VCS provider API is unavailable
 - Monitor API usage and implement rate limit handling
 - Consider webhook-based cache invalidation for instant updates
+- Treat provider `base_url` as the authenticated API origin, not the browse URL:
+  - Public GitHub repository URLs (`https://github.com/owner/repo`) resolve to the REST API origin `https://api.github.com`
+  - GitHub Enterprise repositories resolve to that host's API origin, typically `https://host/api/v3`
+  - Bitbucket Server tokens and spaces use the server origin (`https://host`), with the provider implementation appending `/rest/...`
+- Use provider-qualified repository identity consistently:
+  - GitHub provider calls operate on canonical `owner/repo`
+  - Bitbucket Server provider calls operate on `(project_key, repo_slug)` and may derive a single-segment storage identity such as `PROJECT_repo` where required
 
 ---
 

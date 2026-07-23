@@ -1,10 +1,10 @@
 ---
-description: Pull latest changes for root repo and all workspace sources defined in .cypilot-workspace.toml
+description: Pull latest changes for root repo and all workspace sources defined in .cf-workspace.toml
 ---
 
 # Pull All Repositories
 
-Pulls the latest changes for the root repository and every source listed in `.cypilot-workspace.toml`.
+Pulls the latest changes for the root repository and every source listed in `.cf-workspace.toml`.
 
 ## Steps
 
@@ -26,7 +26,7 @@ Pulls the latest changes for the root repository and every source listed in `.cy
    git pull
    ```
 
-   (CWD: `.workspace-sources/cyberfabric/cyber-wiki-back`)
+   (CWD: `wsrc/constructorfabric/cyber-wiki-back`)
 
 // turbo
 
@@ -36,7 +36,7 @@ Pulls the latest changes for the root repository and every source listed in `.cy
    git pull
    ```
 
-   (CWD: `.workspace-sources/cyberfabric/cyber-wiki-front`)
+   (CWD: `wsrc/constructorfabric/cyber-wiki-front`)
 
 // turbo
 
@@ -46,7 +46,7 @@ Pulls the latest changes for the root repository and every source listed in `.cy
    nvm use && npm ci
    ```
 
-   (CWD: `.workspace-sources/cyberfabric/cyber-wiki-front`)
+   (CWD: `wsrc/constructorfabric/cyber-wiki-front`)
 
 // turbo
 
@@ -56,6 +56,6 @@ Pulls the latest changes for the root repository and every source listed in `.cy
    pip install -r requirements.txt
    ```
 
-   (CWD: `.workspace-sources/cyberfabric/cyber-wiki-back`)
+   (CWD: `wsrc/constructorfabric/cyber-wiki-back`)
 
 6. Print a short summary of each pull result (already up to date / new commits / conflicts) and confirm dependencies are installed.

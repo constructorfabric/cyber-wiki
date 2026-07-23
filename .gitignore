@@ -49,7 +49,7 @@ src/frontx/packages/cli/template-sources/layout/
 # Local CLI e2e artifacts
 .artifacts/
 
-.workspace-sources/
+wsrc/
 
 # BEGIN Constructor Studio
 # Generated Constructor Studio runtime and agent integration files.
@@ -159,11 +159,6 @@ src/frontx/packages/cli/template-sources/layout/
 .claude/agents/cf-storytelling-gate.md
 .claude/agents/cf-storytelling-preflight.md
 .claude/agents/cf-storytelling-wrap.md
-.claude/agents/cypilot-codegen.md
-.claude/agents/cypilot-phase-compiler.md
-.claude/agents/cypilot-phase-runner.md
-.claude/agents/cypilot-pr-review.md
-.claude/agents/cypilot-ralphex.md
 .claude/skills/cf-analyze/SKILL.md
 .claude/skills/cf-auto-config/SKILL.md
 .claude/skills/cf-brainstorm/SKILL.md
@@ -223,14 +218,6 @@ src/frontx/packages/cli/template-sources/layout/
 .claude/skills/cf-write-docs/SKILL.md
 .claude/skills/cf-write-skills/SKILL.md
 .claude/skills/cf/SKILL.md
-.claude/skills/cypilot-analyze/SKILL.md
-.claude/skills/cypilot-generate/SKILL.md
-.claude/skills/cypilot-migrate-openspec/SKILL.md
-.claude/skills/cypilot-plan/SKILL.md
-.claude/skills/cypilot-pr-review/SKILL.md
-.claude/skills/cypilot-pr-status/SKILL.md
-.claude/skills/cypilot-workspace/SKILL.md
-.claude/skills/cypilot/SKILL.md
 .codex/.cf-installed
 .codex/agents/cf-analyze-planner.toml
 .codex/agents/cf-brainstorm-expert.toml
@@ -424,11 +411,6 @@ src/frontx/packages/cli/template-sources/layout/
 .github/agents/cf-storytelling-gate.agent.md
 .github/agents/cf-storytelling-preflight.agent.md
 .github/agents/cf-storytelling-wrap.agent.md
-.github/agents/cypilot-codegen.agent.md
-.github/agents/cypilot-phase-compiler.agent.md
-.github/agents/cypilot-phase-runner.agent.md
-.github/agents/cypilot-pr-review.agent.md
-.github/agents/cypilot-ralphex.agent.md
 .github/prompts/cf-analyze.prompt.md
 .github/prompts/cf-auto-config.prompt.md
 .github/prompts/cf-brainstorm.prompt.md
@@ -488,14 +470,6 @@ src/frontx/packages/cli/template-sources/layout/
 .github/prompts/cf-write-docs.prompt.md
 .github/prompts/cf-write-skills.prompt.md
 .github/prompts/cf.prompt.md
-.github/prompts/cypilot-analyze.prompt.md
-.github/prompts/cypilot-generate.prompt.md
-.github/prompts/cypilot-migrate-openspec.prompt.md
-.github/prompts/cypilot-plan.prompt.md
-.github/prompts/cypilot-pr-review.prompt.md
-.github/prompts/cypilot-pr-status.prompt.md
-.github/prompts/cypilot-workspace.prompt.md
-.github/prompts/cypilot.prompt.md
 .windsurf/workflows/cf-analyze.md
 .windsurf/workflows/cf-auto-config.md
 .windsurf/workflows/cf-brainstorm.md
@@ -555,12 +529,4 @@ src/frontx/packages/cli/template-sources/layout/
 .windsurf/workflows/cf-write-docs.md
 .windsurf/workflows/cf-write-skills.md
 .windsurf/workflows/cf.md
-.windsurf/workflows/cypilot-analyze.md
-.windsurf/workflows/cypilot-generate.md
-.windsurf/workflows/cypilot-migrate-openspec.md
-.windsurf/workflows/cypilot-plan.md
-.windsurf/workflows/cypilot-pr-review.md
-.windsurf/workflows/cypilot-pr-status.md
-.windsurf/workflows/cypilot-workspace.md
-.windsurf/workflows/cypilot.md
 # END Constructor Studio

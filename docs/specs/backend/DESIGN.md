@@ -133,6 +133,19 @@ src/backend/
 | **enrichment_provider** | Extensible enrichment system (comments, PR diffs, local changes), dual mapping (raw/rendered) |
 | **debug_cache** | Development utilities for caching API responses |
 
+#### Repository Identity and Base URL Semantics
+
+- `Space.git_provider` qualifies all repository identifiers and token lookups.
+- `Space.git_repository_id` is the canonical repository identity used by provider calls:
+  - GitHub: `owner/repo`
+  - Bitbucket Server: repository slug, paired with `Space.git_project_key`
+- `Space.git_project_key` is meaningful only for Bitbucket Server provider calls and identities such as `PROJECT_repo` that still need a single-segment storage form.
+- `Space.git_base_url` and `ServiceToken.base_url` represent the provider API origin used for authenticated REST calls:
+  - Public GitHub defaults to `https://api.github.com` even when the repository URL is `https://github.com/owner/repo`
+  - GitHub Enterprise uses its API origin, typically `https://host/api/v3`
+  - Bitbucket Server uses the application origin (for example `https://bitbucket.example.com`), with provider code appending the REST path internally
+- Legacy single-segment GitHub repository identities such as `owner_repo` may still appear in `SourceAddress.repository` or stored comment URIs; reviewed backend paths must derive canonical GitHub provider coordinates as `owner/repo` before calling provider APIs.
+
 ### 1.4 Architectural Vision
 
 The CyberWiki backend is built with Django 5.2 and Django REST Framework, acting as a stateless API server and background sync engine. It abstracts Git repositories and file systems into a unified document graph and enrichment layer. 
