@@ -14,13 +14,14 @@
   - [2.1 Design Principles](#21-design-principles)
   - [2.2 Constraints](#22-constraints)
 - [3. Technical Architecture](#3-technical-architecture)
-  - [3.1 Domain Model](#31-domain-model)
-  - [3.2 Component Model](#32-component-model)
-  - [3.3 API Contracts](#33-api-contracts)
-  - [3.4 Internal Dependencies](#34-internal-dependencies)
-  - [3.5 External Dependencies](#35-external-dependencies)
-  - [3.6 Interactions & Sequences](#36-interactions--sequences)
-  - [3.7 Database schemas & tables](#37-database-schemas--tables)
+  - [3.1 HAI3 Event-Driven State Management](#31-hai3-event-driven-state-management)
+  - [3.2 Domain Model](#32-domain-model)
+  - [3.3 Component Model](#33-component-model)
+  - [3.4 API Contracts](#34-api-contracts)
+  - [3.5 Internal Dependencies](#35-internal-dependencies)
+  - [3.6 External Dependencies](#36-external-dependencies)
+  - [3.7 Interactions & Sequences](#37-interactions--sequences)
+  - [3.8 Database schemas & tables](#38-database-schemas--tables)
 - [4. Additional context](#4-additional-context)
   - [2. Routing System](#2-routing-system)
   - [3. State Management](#3-state-management)
@@ -234,9 +235,9 @@ The architecture prioritizes AI-assisted development, enabling rapid iteration f
 | Requirement | Design Response |
 |-------------|------------------|
 | `cpt-cyberwiki-fr-live-edit` | WYSIWYG editor with raw mode toggle; state managed via HAI3 event-driven Flux (actions → events → effects → reducers). |
-| `cpt-cyberwiki-fr-dual-navigation` | Mode Switching Mechanism per repository between Developer Mode (raw files) and Document Mode (clean hierarchy); mode state in user preferences slice. |
-| `cpt-cyberwiki-fr-format-agnostic-rendering` | Virtual Content Rendering Pipeline with distinct Format Renderers (PlainText, Markdown, YAML, Code). |
-| `cpt-cyberwiki-fr-enrichments` | Dual Mapping System for overlaying metadata (PR diffs, comments) onto both raw lines and rendered blocks. |
+| `cpt-cyberwiki-fr-left-nav-dual-mode` | Mode Switching Mechanism per repository between Developer Mode (raw files) and Document Mode (clean hierarchy); mode state in user preferences slice. |
+| `cpt-cyberwiki-fr-file-content-display`, `cpt-cyberwiki-fr-markdown-preview`, `cpt-cyberwiki-fr-diagram-preview`, `cpt-cyberwiki-fr-drawio-preview`, `cpt-cyberwiki-fr-table-rendering` | Virtual Content Rendering Pipeline with distinct Format Renderers (PlainText, Markdown, YAML, Code). |
+| `cpt-cyberwiki-fr-inline-comments`, `cpt-cyberwiki-fr-comment-line-anchoring`, `cpt-cyberwiki-fr-inline-pending-changes`, `cpt-cyberwiki-fr-pr-diff-review` | Dual Mapping System for overlaying metadata (PR diffs, comments) onto both raw lines and rendered blocks. |
 | `cpt-cyberwiki-fr-document-level-comments` | Document-level comments component in wiki screenset; state managed via comments slice and effects. |
 | `cpt-cyberwiki-fr-fulltext-search` | Search screen in wiki screenset; search API plugin with REST protocol; results state in search slice. |
 | `cpt-cyberwiki-fr-git-viewer-navigation` | Deep linking via URL patterns; Git URL parser utility; "View in Git" button component. |
@@ -245,9 +246,11 @@ The architecture prioritizes AI-assisted development, enabling rapid iteration f
 
 | NFR ID | NFR Summary | Allocated To | Design Response | Verification Approach |
 |--------|-------------|--------------|-----------------|----------------------|
-| `cpt-cyberwiki-nfr-performance` | Fast initial load | Architecture | Lazy-loaded views via `React.lazy()`, Virtual scrolling with `@tanstack/react-virtual` | Bundle size analysis, Lighthouse |
-| `cpt-cyberwiki-nfr-deployability` | Simple staging deployment | Routing | Hash-based SPA routing | Deployment testing |
-| `cpt-cyberwiki-nfr-accessibility` | Accessible UI | UI Components | Keyboard navigation, ARIA labels, WCAG AA contrast | Accessibility audits |
+| `cpt-cyberwiki-nfr-search-latency` | Search results < 2s | Search UI | Debounced search and result caching | Integration timing tests |
+| `cpt-cyberwiki-nfr-save-latency` | Save/commit < 60s | Editing flow | Optimistic save status and background API calls | Save flow timing tests |
+| `cpt-cyberwiki-nfr-repo-list-performance` | Fast repository list loading | Repository lists | Virtual scrolling with `@tanstack/react-virtual` | Large-list UI tests |
+| Design rationale | Simple staging deployment | Routing | Hash-based SPA routing | Deployment testing |
+| Design rationale | Accessible UI | UI Components | Keyboard navigation, ARIA labels, sufficient contrast | Accessibility audits |
 
 ### 1.5 Requirements Traceability Matrix
 
@@ -333,8 +336,8 @@ This section maps all PRD requirements to frontend design components and impleme
 
 | Requirement ID | Priority | Requirement Summary | Design Component(s) | Status | Design Section |
 |----------------|----------|---------------------|---------------------|--------|----------------|
-| `cpt-cyberwiki-fr-ai-chat` | p2 | Embedded AI chat interface for documentation assistance | `AIChatPanel`, `ChatInterface`, `aiApi` | [ ] Not Started | TBD |
-| `cpt-cyberwiki-fr-ai-inline-editing` | p2 | Inline AI editing assistance integration | `AIRefineButton`, `aiApi`, LLM integration | [ ] Not Started | TBD |
+| Design rationale | p2 | Embedded AI chat interface for documentation assistance | `AIChatPanel`, `ChatInterface`, `aiApi` | [ ] Not Started | TBD |
+| `cpt-cyberwiki-fr-smart-edit-ai-refine` | p2 | AI text refinement | `AIRefineButton`, `aiApi`, LLM integration | [ ] Not Started | TBD |
 
 #### Navigation & Integration Requirements
 
@@ -387,11 +390,11 @@ This section maps all PRD requirements to frontend design components and impleme
 
 | Use Case ID | Priority | Use Case Summary | Involved Components | Status | Design Section |
 |-------------|----------|------------------|---------------------|--------|----------------|
-| `cpt-cyberwiki-usecase-edit-commit` | p1 | Edit and commit a document | `MarkdownEditor`, `SaveButton`, `CommitDialog`, `wikiApi` | [ ] Not Started | TBD |
-| `cpt-cyberwiki-usecase-auth-configure` | p1 | Authenticate and configure Git credentials | `LoginPage`, `GitCredentialsForm`, `authApi` | [ ] Not Started | TBD |
-| `cpt-cyberwiki-usecase-browse-repo` | p1 | Browse repository file tree | `Sidebar/FileTree`, `RepositoryDetail`, `FileViewer` | [x] Designed | Section 4.4 |
-| `cpt-cyberwiki-usecase-view-file-comments` | p1 | View file content with inline comments | `FileViewer`, `CommentsPanel`, `EnrichmentMarker` | [x] Designed | Section 4.6 |
-| `cpt-cyberwiki-usecase-view-pr` | p1 | View PRs and navigate to VCS provider | `PRList`, `PRDetail`, External link handler | [ ] Not Started | TBD |
+| `cpt-cyberwiki-design-frontend-edit-commit-realization` | p1 | Edit and commit a document | `MarkdownEditor`, `SaveButton`, `CommitDialog`, `wikiApi` | [ ] Not Started | TBD |
+| `cpt-cyberwiki-design-frontend-auth-configure-realization` | p1 | Authenticate and configure Git credentials | `LoginPage`, `GitCredentialsForm`, `authApi` | [ ] Not Started | TBD |
+| `cpt-cyberwiki-design-frontend-browse-repo-realization` | p1 | Browse repository file tree | `Sidebar/FileTree`, `RepositoryDetail`, `FileViewer` | [x] Designed | Section 4.4 |
+| `cpt-cyberwiki-design-frontend-view-file-comments-realization` | p1 | View file content with inline comments | `FileViewer`, `CommentsPanel`, `EnrichmentMarker` | [x] Designed | Section 4.6 |
+| `cpt-cyberwiki-design-frontend-view-pr-realization` | p1 | View PRs and navigate to VCS provider | `PRList`, `PRDetail`, External link handler | [ ] Not Started | TBD |
 
 **Traceability Summary:**
 - Total Requirements: 68
@@ -596,9 +599,9 @@ Managing dual navigation modes (Developer Mode via `FileTree.tsx`, Document Mode
 
 Does not handle file content rendering.
 
-### 3.3 API Contracts
+### 3.4 API Contracts
 
-- **Contracts**: `cpt-cyberwiki-contract-frontend-api`
+- **Contracts**: Frontend REST API client contracts
 - **Technology**: REST
 
 **Endpoints Overview**:
@@ -607,20 +610,20 @@ Does not handle file content rendering.
 |--------|------|-------------|-----------|
 | `GET` | `/api/v1/*` | Handled via `services/apiClient.ts` wrapper modules | stable |
 
-### 3.4 Internal Dependencies
+### 3.5 Internal Dependencies
 
 | Dependency Module | Interface Used | Purpose |
 |-------------------|----------------|----------|
 | Custom Hooks | `useRepositories`, `useFileContent`, `useEnrichments` | Encapsulate fetch + loading + error states |
 | React Context | `AuthContext`, `ThemeContext`, `RepositoryContext`, `UserSettingsContext` | Provide session, theme, repo state, user settings |
 
-### 3.5 External Dependencies
+### 3.6 External Dependencies
 
 | Dependency Module | Interface Used | Purpose |
 |-------------------|---------------|---------|
 | Backend Server | REST API | Data persistence, tree building, and authentication (Django session) |
 
-### 3.6 Interactions & Sequences
+### 3.7 Interactions & Sequences
 
 #### Enrichment Rendering Flow
 
@@ -638,7 +641,7 @@ sequenceDiagram
     Pipeline-->>Component: Rendered virtual content tree
 ```
 
-### 3.7 Database schemas & tables
+### 3.8 Database schemas & tables
 
 N/A - Frontend does not define database schemas.
 
@@ -1930,8 +1933,7 @@ const debouncedSearch = useMemo(
 
 #### 14.3 Color Contrast
 
-- WCAG AA compliance
-- Sufficient contrast for all text
+- Sufficient contrast targets reviewed during UI QA
 - Color not sole indicator (use icons + text)
 
 ---
@@ -1953,7 +1955,7 @@ const debouncedSearch = useMemo(
 This section shows how each PRD use case flows through the frontend architecture.
 
 #### 16.1 Use Case: Edit and Commit a Document
-**ID**: `cpt-cyberwiki-usecase-edit-commit`
+**ID**: `cpt-cyberwiki-design-frontend-edit-commit-realization`
 
 **Actors**: Editor
 
@@ -2021,7 +2023,7 @@ This section shows how each PRD use case flows through the frontend architecture
 ---
 
 #### 16.2 Use Case: Authenticate and Configure Git Credentials
-**ID**: `cpt-cyberwiki-usecase-auth-configure`
+**ID**: `cpt-cyberwiki-design-frontend-auth-configure-realization`
 
 **Actors**: Admin, Editor
 
@@ -2081,7 +2083,7 @@ This section shows how each PRD use case flows through the frontend architecture
 ---
 
 #### 16.3 Use Case: Browse Repository File Tree
-**ID**: `cpt-cyberwiki-usecase-browse-repo`
+**ID**: `cpt-cyberwiki-design-frontend-browse-repo-realization`
 
 **Actors**: All authenticated users
 
@@ -2136,7 +2138,7 @@ This section shows how each PRD use case flows through the frontend architecture
 ---
 
 #### 16.4 Use Case: View File Content with Inline Comments
-**ID**: `cpt-cyberwiki-usecase-view-file-comments`
+**ID**: `cpt-cyberwiki-design-frontend-view-file-comments-realization`
 
 **Actors**: All authenticated users
 
@@ -2220,7 +2222,7 @@ This section shows how each PRD use case flows through the frontend architecture
 ---
 
 #### 16.5 Use Case: View PRs and Navigate to VCS Provider
-**ID**: `cpt-cyberwiki-usecase-view-pr`
+**ID**: `cpt-cyberwiki-design-frontend-view-pr-realization`
 
 **Actors**: All authenticated users
 

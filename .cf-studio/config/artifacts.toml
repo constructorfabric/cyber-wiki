@@ -1,0 +1,46 @@
+# Constructor Studio artifacts registry
+
+[[systems]]
+name = "Studio"
+slug = "studio"
+kit = ""
+artifacts = []
+codebase = []
+children = []
+
+[[systems]]
+name = "Cyber Wiki"
+slug = "cyberwiki"
+kit = "sdlc"
+artifacts_dir = "docs/specs"
+children = []
+
+[[systems.artifacts]]
+name = "Cyber Wiki Product Requirements"
+path = "docs/specs/PRD.md"
+kind = "PRD"
+traceability = "DOCS-ONLY"
+
+[[systems.artifacts]]
+name = "VCS Integration Pattern"
+path = "docs/specs/ADR/001-vcs-integration-pattern.md"
+kind = "ADR"
+traceability = "DOCS-ONLY"
+
+[[systems.artifacts]]
+name = "Comment System Architecture"
+path = "docs/specs/ADR/002-comment-system-architecture.md"
+kind = "ADR"
+traceability = "DOCS-ONLY"
+
+[[systems.artifacts]]
+name = "Backend Technical Design"
+path = "docs/specs/backend/DESIGN.md"
+kind = "DESIGN"
+traceability = "DOCS-ONLY"
+
+[[systems.artifacts]]
+name = "Frontend Technical Design"
+path = "docs/specs/frontend/DESIGN.md"
+kind = "DESIGN"
+traceability = "DOCS-ONLY"
