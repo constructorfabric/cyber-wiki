@@ -1,22 +1,59 @@
 # ADR-002: Comment System Architecture (Database-Native vs Third-Party)
 
+
+<!-- toc -->
+
+- [Context and Problem Statement](#context-and-problem-statement)
+- [Decision Drivers](#decision-drivers)
+- [Considered Options](#considered-options)
+  - [Option 1: Disqus (Third-Party Platform)](#option-1-disqus-third-party-platform)
+  - [Option 2: Giscus (GitHub Discussions Frontend)](#option-2-giscus-github-discussions-frontend)
+  - [Option 3: GitHub Discussions Integration (Fumadocs Pattern)](#option-3-github-discussions-integration-fumadocs-pattern)
+  - [Option 4: Confluence (Enterprise Wiki Platform)](#option-4-confluence-enterprise-wiki-platform)
+  - [Option 5: Database-Native with VCS Sync (Cyber Wiki Approach) ✅ **SELECTED**](#option-5-database-native-with-vcs-sync-cyber-wiki-approach--selected)
+- [Decision Outcome](#decision-outcome)
+  - [Consequences](#consequences)
+  - [Confirmation](#confirmation)
+- [Pros and Cons of the Options](#pros-and-cons-of-the-options)
+  - [Option 1: Disqus (Third-Party Platform)](#option-1-disqus-third-party-platform-1)
+  - [Option 2: Giscus (GitHub Discussions Frontend)](#option-2-giscus-github-discussions-frontend-1)
+  - [Option 3: GitHub Discussions Integration (Fumadocs Pattern)](#option-3-github-discussions-integration-fumadocs-pattern-1)
+  - [Option 4: Confluence (Enterprise Wiki Platform)](#option-4-confluence-enterprise-wiki-platform-1)
+  - [Option 5: Database-Native with VCS Sync (Cyber Wiki Approach) ✅ **SELECTED**](#option-5-database-native-with-vcs-sync-cyber-wiki-approach--selected-1)
+- [Decision Outcome Rationale](#decision-outcome-rationale)
+  - [Key Requirements](#key-requirements)
+  - [Comparative Analysis](#comparative-analysis)
+- [Implementation Notes](#implementation-notes)
+  - [Database Schema](#database-schema)
+  - [Line-Anchoring Algorithm](#line-anchoring-algorithm)
+  - [Optional VCS Sync (Future)](#optional-vcs-sync-future)
+- [Related Decisions](#related-decisions)
+- [References](#references)
+
+<!-- /toc -->
+
 **Status**: Accepted
 
 **Date**: 2026-03-27
 
+**ID**: `cpt-cyberwiki-adr-comment-system-architecture`
+
 **Context**: Cyber Wiki requires an inline comment system for code review, documentation review, and collaboration. Comments must support line-level anchoring, threading, resolution workflows, and integration with VCS provider workflows (especially PR reviews). Modern platforms use various comment system architectures, from third-party services (Disqus) to VCS-backed storage (Giscus, GitHub Discussions) to enterprise wikis (Confluence).
 
 ---
+## Context and Problem Statement
 
-## Decision
+Cyber Wiki needs an inline comment architecture that supports code review and documentation review with line-level precision, threading, resolution, and VCS-aware workflows. The decision is whether to rely on an external comment platform, a VCS-hosted discussion system, or a database-native architecture owned by the product.
 
-**Cyber Wiki adopts a database-native comment system** with Confluence-like inline comment UX and deep Git integration.
+## Decision Drivers
 
-The system **MUST** store all inline comments in the platform database with VCS metadata (provider, project, repository, branch, file path, line range). Comments **cannot be stored on external servers** or VCS provider platforms.
+- Line-level anchoring that survives document and PR evolution
+- Visibility of comments alongside ongoing PR changes
+- Multi-VCS support without tying the product to one provider
+- Data ownership, privacy, and flexible access control
+- Confluence-like collaboration UX for technical documents
 
----
-
-## Options Considered
+## Considered Options
 
 ### Option 1: Disqus (Third-Party Platform)
 
@@ -151,7 +188,91 @@ The system **MUST** store all inline comments in the platform database with VCS 
 
 ---
 
-## Rationale
+## Decision Outcome
+
+**Cyber Wiki adopts a database-native comment system** with Confluence-like inline comment UX and deep Git integration.
+
+The system **MUST** store all inline comments in the platform database with VCS metadata (provider, project, repository, branch, file path, line range). Comments **cannot be stored on external servers** or VCS provider platforms.
+
+### Consequences
+
+**Positive**:
+- Full control over comment features (line anchoring, threading, status, resolution)
+- Works consistently across all VCS providers (GitHub, Bitbucket, GitLab)
+- Comments visible alongside ongoing PR changes
+- Confluence-like inline comment UX for excellent user experience
+- Access control decoupled from VCS permissions (enables Commenter role)
+- No vendor lock-in; full data ownership
+- No third-party tracking or privacy concerns
+- Code-first features (syntax highlighting, line-level precision)
+
+**Negative**:
+- Requires database infrastructure and maintenance
+- Comments not visible in native VCS UI unless optional sync is implemented
+- Medium implementation complexity (line-anchoring algorithms, threading, status management)
+
+**Neutral**:
+- Infrastructure cost justified by feature requirements and data ownership
+- Optional VCS sync can be added in future versions to make comments visible in native VCS UI
+
+### Confirmation
+
+This ADR confirms the accepted database-native architecture and preserves the rejected alternatives as reference points for future review.
+
+## Pros and Cons of the Options
+
+### Option 1: Disqus (Third-Party Platform)
+
+**Pros**:
+- Very low implementation effort
+- Mature moderation and spam tooling
+
+**Cons**:
+- External data ownership and tracking concerns
+- No line-level anchoring or Git integration
+
+### Option 2: Giscus (GitHub Discussions Frontend)
+
+**Pros**:
+- No custom backend needed
+- Portable within GitHub-based repositories
+
+**Cons**:
+- GitHub-only and not suitable for multi-VCS support
+- No line-level anchoring or PR-evolution visibility
+
+### Option 3: GitHub Discussions Integration (Fumadocs Pattern)
+
+**Pros**:
+- Reuses GitHub authentication and discussion surfaces
+- Minimal separate comment infrastructure
+
+**Cons**:
+- Repository discussion model is not file-line centric
+- Ties the product to GitHub-specific workflows
+
+### Option 4: Confluence (Enterprise Wiki Platform)
+
+**Pros**:
+- Strong inline collaboration UX
+- Mature enterprise moderation and access patterns
+
+**Cons**:
+- No deep Git or PR integration
+- Vendor lock-in and limited code-centric workflows
+
+### Option 5: Database-Native with VCS Sync (Cyber Wiki Approach) ✅ **SELECTED**
+
+**Pros**:
+- Full control over anchoring, threading, status, and access control
+- Consistent behavior across multiple VCS providers
+- Supports PR-aware and code-aware comment experiences
+
+**Cons**:
+- Requires backend and database ownership
+- Higher implementation complexity than embedding a third-party option
+
+## Decision Outcome Rationale
 
 **Why Database-Native (Cyber Wiki Approach)**:
 
@@ -201,32 +322,6 @@ Cyber Wiki requires a **flexible, extensible, Confluence-like inline comment sys
 | Resolution Workflow | Basic | Reactions only | Reactions only | **Yes** | **Yes** |
 | Backend Required | No | No | No | Yes (Confluence) | Yes |
 | Alignment | General Audience | Developers | Developers | Enterprise Docs | **Code Review + Docs** |
-
----
-
-## Consequences
-
-### Positive
-
-- Full control over comment features (line anchoring, threading, status, resolution)
-- Works consistently across all VCS providers (GitHub, Bitbucket, GitLab)
-- Comments visible alongside ongoing PR changes
-- Confluence-like inline comment UX for excellent user experience
-- Access control decoupled from VCS permissions (enables Commenter role)
-- No vendor lock-in; full data ownership
-- No third-party tracking or privacy concerns
-- Code-first features (syntax highlighting, line-level precision)
-
-### Negative
-
-- Requires database infrastructure and maintenance
-- Comments not visible in native VCS UI unless optional sync is implemented
-- Medium implementation complexity (line-anchoring algorithms, threading, status management)
-
-### Neutral
-
-- Infrastructure cost justified by feature requirements and data ownership
-- Optional VCS sync can be added in future versions to make comments visible in native VCS UI
 
 ---
 

@@ -1,22 +1,47 @@
 # ADR-001: VCS Integration Pattern (Dynamic/API vs Build-time)
 
+
+<!-- toc -->
+
+- [Context and Problem Statement](#context-and-problem-statement)
+- [Decision Drivers](#decision-drivers)
+- [Considered Options](#considered-options)
+  - [Option 1: Build-Time VCS Pattern (Docusaurus Model)](#option-1-build-time-vcs-pattern-docusaurus-model)
+  - [Option 2: Dynamic/API Integration Pattern (Fumadocs Model) ✅ **SELECTED**](#option-2-dynamicapi-integration-pattern-fumadocs-model--selected)
+- [Decision Outcome](#decision-outcome)
+  - [Consequences](#consequences)
+  - [Confirmation](#confirmation)
+- [Pros and Cons of the Options](#pros-and-cons-of-the-options)
+  - [Option 1: Build-Time VCS Pattern (Docusaurus Model)](#option-1-build-time-vcs-pattern-docusaurus-model-1)
+  - [Option 2: Dynamic/API Integration Pattern (Fumadocs Model) ✅ **SELECTED**](#option-2-dynamicapi-integration-pattern-fumadocs-model--selected-1)
+- [Decision Outcome Rationale](#decision-outcome-rationale)
+- [Implementation Notes](#implementation-notes)
+- [Related Decisions](#related-decisions)
+- [References](#references)
+
+<!-- /toc -->
+
 **Status**: Accepted
 
 **Date**: 2026-03-27
 
+**ID**: `cpt-cyberwiki-adr-vcs-integration-pattern`
+
 **Context**: Cyber Wiki requires integration with VCS providers (GitHub, Bitbucket Server) to fetch repository content, metadata, and pull request information. Modern documentation platforms implement VCS integration using two distinct architectural patterns: **Build-time Extraction** (static) and **Dynamic/API-driven Fetching** (real-time).
 
 ---
+## Context and Problem Statement
 
-## Decision
+Cyber Wiki requires integration with VCS providers (GitHub, Bitbucket Server) to fetch repository content, metadata, and pull request information. The decision is whether to use a build-time extraction model or a dynamic, API-driven runtime integration model.
 
-**Cyber Wiki adopts the Dynamic/API Integration pattern** as the primary VCS integration strategy.
+## Decision Drivers
 
-The system **MUST** implement VCS integration using the Dynamic/API pattern, fetching content, metadata, and repository information from VCS provider APIs at runtime rather than during build-time extraction.
+- Real-time accuracy for repository content and metadata
+- Support for live collaboration features, including comments and PR-aware workflows
+- Independence from full site rebuilds for documentation updates
+- Extensibility across multiple VCS providers
 
----
-
-## Options Considered
+## Considered Options
 
 ### Option 1: Build-Time VCS Pattern (Docusaurus Model)
 
@@ -71,7 +96,62 @@ The system **MUST** implement VCS integration using the Dynamic/API pattern, fet
 
 ---
 
-## Rationale
+## Decision Outcome
+
+**Cyber Wiki adopts the Dynamic/API Integration pattern** as the primary VCS integration strategy.
+
+The system **MUST** implement VCS integration using the Dynamic/API pattern, fetching content, metadata, and repository information from VCS provider APIs at runtime rather than during build-time extraction.
+
+### Consequences
+
+**Positive**:
+- Users see documentation updates within seconds of pushing commits
+- Live metadata (author avatars, commit timestamps) enhances collaboration
+- Inline comments can be displayed alongside ongoing PR changes
+- PR status and file browsing are always up-to-date
+- No CI/CD pipeline required for documentation updates
+- Supports multi-VCS providers through abstract API interface
+
+**Negative**:
+- Requires server or serverless infrastructure (cannot use pure static hosting)
+- Must implement API rate limit handling and caching strategies
+- Depends on VCS provider API availability (requires fallback mechanisms)
+- Medium implementation complexity (API client libraries, error handling, retry logic)
+
+**Neutral**:
+- Infrastructure cost is higher than static hosting but justified by feature requirements
+- API token management required (OAuth, ZTA tokens)
+
+### Confirmation
+
+This ADR records the accepted choice of the Dynamic/API integration pattern and confirms that the rejected build-time alternative remains documented for comparison.
+
+## Pros and Cons of the Options
+
+### Option 1: Build-Time VCS Pattern (Docusaurus Model)
+
+**Pros**:
+- Low complexity
+- No runtime API dependency
+- Broad compatibility with any VCS provider that exposes local Git history
+
+**Cons**:
+- Delayed updates tied to rebuild cycles
+- Cannot support real-time collaboration and PR-aware workflows
+- Build pipeline issues block documentation freshness
+
+### Option 2: Dynamic/API Integration Pattern (Fumadocs Model) ✅ **SELECTED**
+
+**Pros**:
+- Near-real-time updates and live metadata
+- Supports collaboration features that depend on current VCS state
+- Decouples documentation freshness from site rebuilds
+
+**Cons**:
+- Requires runtime infrastructure and API handling
+- Must manage provider availability, caching, and rate limits
+
+## Decision Outcome Rationale
 
 **Why Dynamic/API Integration**:
 
@@ -98,31 +178,6 @@ The system **MUST** implement VCS integration using the Dynamic/API pattern, fet
 
 ---
 
-## Consequences
-
-### Positive
-
-- Users see documentation updates within seconds of pushing commits
-- Live metadata (author avatars, commit timestamps) enhances collaboration
-- Inline comments can be displayed alongside ongoing PR changes
-- PR status and file browsing are always up-to-date
-- No CI/CD pipeline required for documentation updates
-- Supports multi-VCS providers through abstract API interface
-
-### Negative
-
-- Requires server or serverless infrastructure (cannot use pure static hosting)
-- Must implement API rate limit handling and caching strategies
-- Depends on VCS provider API availability (requires fallback mechanisms)
-- Medium implementation complexity (API client libraries, error handling, retry logic)
-
-### Neutral
-
-- Infrastructure cost is higher than static hosting but justified by feature requirements
-- API token management required (OAuth, ZTA tokens)
-
----
-
 ## Implementation Notes
 
 - Implement abstract VCS provider interface with concrete implementations for GitHub and Bitbucket Server
@@ -130,6 +185,13 @@ The system **MUST** implement VCS integration using the Dynamic/API pattern, fet
 - Implement graceful degradation when VCS provider API is unavailable
 - Monitor API usage and implement rate limit handling
 - Consider webhook-based cache invalidation for instant updates
+- Treat provider `base_url` as the authenticated API origin, not the browse URL:
+  - Public GitHub repository URLs (`https://github.com/owner/repo`) resolve to the REST API origin `https://api.github.com`
+  - GitHub Enterprise repositories resolve to that host's API origin, typically `https://host/api/v3`
+  - Bitbucket Server tokens and spaces use the server origin (`https://host`), with the provider implementation appending `/rest/...`
+- Use provider-qualified repository identity consistently:
+  - GitHub provider calls operate on canonical `owner/repo`
+  - Bitbucket Server provider calls operate on `(project_key, repo_slug)` and may derive a single-segment storage identity such as `PROJECT_repo` where required
 
 ---
 

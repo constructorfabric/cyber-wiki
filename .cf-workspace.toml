@@ -1,0 +1,20 @@
+version = "1.0"
+
+[sources]
+[sources.studio-back]
+url = "git@github.com:constructorfabric/cyber-wiki-back.git"
+
+[sources.studio-front]
+url = "git@github.com:constructorfabric/cyber-wiki-front.git"
+
+[sources.studio-kit-sdlc]
+url = "git@github.com:constructorfabric/studio-kit-sdlc.git"
+
+[sources.vision]
+url = "git@github.com:constructorfabric/vision.git"
+
+[sources.fabric-poc]
+url = "git@github.com:constructorfabric/fabric-poc.git"
+
+[resolve]
+workdir = "wsrc"

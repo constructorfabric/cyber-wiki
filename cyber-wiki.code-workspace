@@ -6,11 +6,11 @@
     },
     {
       "name": "cyber-wiki-back",
-      "path": ".workspace-sources/cyberfabric/cyber-wiki-back"
+      "path": "wsrc/constructorfabric/cyber-wiki-back"
     },
     {
       "name": "cyber-wiki-front",
-      "path": ".workspace-sources/cyberfabric/cyber-wiki-front"
+      "path": "wsrc/constructorfabric/cyber-wiki-front"
     }
   ],
   "settings": {

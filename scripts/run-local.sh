@@ -16,8 +16,8 @@ lsof -ti:5173 | xargs kill -9 2>/dev/null || true
 sleep 1
 
 # Define paths to backend and frontend repos
-BACKEND_PATH="$REPO_ROOT/.workspace-sources/cyberfabric/cyber-wiki-back"
-FRONTEND_PATH="$REPO_ROOT/.workspace-sources/cyberfabric/cyber-wiki-front"
+BACKEND_PATH="$REPO_ROOT/wsrc/constructorfabric/cyber-wiki-back"
+FRONTEND_PATH="$REPO_ROOT/wsrc/constructorfabric/cyber-wiki-front"
 
 # Check if backend repo exists
 if [ ! -d "$BACKEND_PATH" ]; then

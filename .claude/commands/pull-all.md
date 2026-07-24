@@ -1,4 +1,4 @@
-Pull latest changes for root repo and all workspace sources defined in .cypilot-workspace.toml.
+Pull latest changes for root repo and all workspace sources defined in `.cf-workspace.toml`.
 
 ## Steps
 
@@ -16,7 +16,7 @@ Pull latest changes for root repo and all workspace sources defined in .cypilot-
    git pull
    ```
 
-   (CWD: `.workspace-sources/cyberfabric/cyber-wiki-back`)
+   (CWD: `wsrc/constructorfabric/cyber-wiki-back`)
 
 3. Pull `cyber-wiki-front`:
 
@@ -24,7 +24,7 @@ Pull latest changes for root repo and all workspace sources defined in .cypilot-
    git pull
    ```
 
-   (CWD: `.workspace-sources/cyberfabric/cyber-wiki-front`)
+   (CWD: `wsrc/constructorfabric/cyber-wiki-front`)
 
 4. Reinstall frontend dependencies:
 
@@ -32,7 +32,7 @@ Pull latest changes for root repo and all workspace sources defined in .cypilot-
    nvm use && npm ci
    ```
 
-   (CWD: `.workspace-sources/cyberfabric/cyber-wiki-front`)
+   (CWD: `wsrc/constructorfabric/cyber-wiki-front`)
 
 5. Reinstall backend dependencies:
 
@@ -40,6 +40,6 @@ Pull latest changes for root repo and all workspace sources defined in .cypilot-
    pip install -r requirements.txt
    ```
 
-   (CWD: `.workspace-sources/cyberfabric/cyber-wiki-back`)
+   (CWD: `wsrc/constructorfabric/cyber-wiki-back`)
 
 6. Print a short summary of each pull result (already up to date / new commits / conflicts) and confirm dependencies are installed.

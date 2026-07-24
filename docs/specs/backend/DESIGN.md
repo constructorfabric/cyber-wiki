@@ -133,6 +133,19 @@ src/backend/
 | **enrichment_provider** | Extensible enrichment system (comments, PR diffs, local changes), dual mapping (raw/rendered) |
 | **debug_cache** | Development utilities for caching API responses |
 
+#### Repository Identity and Base URL Semantics
+
+- `Space.git_provider` qualifies all repository identifiers and token lookups.
+- `Space.git_repository_id` is the canonical repository identity used by provider calls:
+  - GitHub: `owner/repo`
+  - Bitbucket Server: repository slug, paired with `Space.git_project_key`
+- `Space.git_project_key` is meaningful only for Bitbucket Server provider calls and identities such as `PROJECT_repo` that still need a single-segment storage form.
+- `Space.git_base_url` and `ServiceToken.base_url` represent the provider API origin used for authenticated REST calls:
+  - Public GitHub defaults to `https://api.github.com` even when the repository URL is `https://github.com/owner/repo`
+  - GitHub Enterprise uses its API origin, typically `https://host/api/v3`
+  - Bitbucket Server uses the application origin (for example `https://bitbucket.example.com`), with provider code appending the REST path internally
+- Legacy single-segment GitHub repository identities such as `owner_repo` may still appear in `SourceAddress.repository` or stored comment URIs; reviewed backend paths must derive canonical GitHub provider coordinates as `owner/repo` before calling provider APIs.
+
 ### 1.4 Architectural Vision
 
 The CyberWiki backend is built with Django 5.2 and Django REST Framework, acting as a stateless API server and background sync engine. It abstracts Git repositories and file systems into a unified document graph and enrichment layer. 
@@ -145,16 +158,23 @@ The architecture is designed around the concept of "Enrichments" — metadata ov
 
 | Requirement | Design Response |
 |-------------|------------------|
-| `cpt-cyberwiki-fr-repository-sync` | APScheduler for periodic background pulls, with `GitPython` abstraction via the `git_provider` app. |
-| `cpt-cyberwiki-fr-dual-navigation` | Tree building abstraction (`tree_builder.py`, `title_extractor.py`) supporting both raw Developer Mode and processed Document Mode. |
-| `cpt-cyberwiki-fr-enrichment-api` | Extensible `BaseEnrichmentProvider` system, with specific implementations for Comments, PRs, and Local Changes. |
+| `cpt-cyberwiki-fr-git-sync` | APScheduler for periodic background pulls, with `GitPython` abstraction via the `git_provider` app. |
+| `cpt-cyberwiki-fr-left-nav-dual-mode` | Tree building abstraction (`tree_builder.py`, `title_extractor.py`) supporting both raw Developer Mode and processed Document Mode. |
+| `cpt-cyberwiki-fr-inline-comments`, `cpt-cyberwiki-fr-comment-line-anchoring`, `cpt-cyberwiki-fr-inline-pending-changes`, `cpt-cyberwiki-fr-pr-diff-review` | Extensible `BaseEnrichmentProvider` system, with specific implementations for Comments, PRs, and Local Changes. |
+
+#### ADR Drivers
+
+| ADR | Design Link |
+|-----|-------------|
+| `cpt-cyberwiki-adr-comment-system-architecture` | Inline comment storage, enrichment, and line anchoring design decisions. |
+| `cpt-cyberwiki-adr-vcs-integration-pattern` | Pluggable VCS backend and PR diff integration decisions. |
 
 #### NFR Allocation
 
 | NFR ID | NFR Summary | Allocated To | Design Response | Verification Approach |
 |--------|-------------|--------------|-----------------|----------------------|
-| `cpt-cyberwiki-nfr-extensibility` | Easy to add new metadata types | Architecture | `EnrichmentProvider` interface pattern | Code review |
-| `cpt-cyberwiki-nfr-portability` | Database agnostic | Infrastructure | Django ORM (`DATABASE_URL` for SQLite/Postgres) | CI Testing |
+| Design rationale | Easy to add new metadata types | Architecture | `EnrichmentProvider` interface pattern | Code review |
+| Design rationale | Database agnostic | Infrastructure | Django ORM (`DATABASE_URL` for SQLite/Postgres) | CI Testing |
 
 ### 1.6 Requirements Traceability Matrix
 
@@ -247,8 +267,8 @@ This section maps all PRD requirements to backend design components and implemen
 
 | Requirement ID | Priority | Requirement Summary | Design Component(s) | Status | Design Section |
 |----------------|----------|---------------------|---------------------|--------|----------------|
-| `cpt-cyberwiki-fr-ai-chat` | p2 | Embedded AI chat interface for documentation assistance | AI chat API, LLM integration, Context retrieval | [ ] Not Started | TBD |
-| `cpt-cyberwiki-fr-ai-inline-editing` | p2 | Inline AI editing assistance integration | AI refinement API, LLM integration (CyPilot, Claude, GPT, local models) | [ ] Not Started | TBD |
+| Design rationale | p2 | Embedded AI chat interface for documentation assistance | AI chat API, LLM integration, Context retrieval | [ ] Not Started | TBD |
+| `cpt-cyberwiki-fr-smart-edit-ai-refine` | p2 | AI text refinement | AI refinement API, LLM integration (CyPilot, Claude, GPT, local models) | [ ] Not Started | TBD |
 
 #### Navigation & Integration Requirements
 
@@ -825,7 +845,7 @@ Does not handle Git syncing or file parsing directly.
 
 ##### Related components (by ID)
 
-- `cpt-cyberwiki-component-git-provider` — depends on for PR diffs.
+- `cpt-cyberwiki-fr-vcs-backend`, `cpt-cyberwiki-fr-vcs-interface` — depends on the pluggable VCS provider backend and interface for PR diffs.
 
 #### Tree Builder
 
@@ -845,7 +865,7 @@ Does not handle HTTP requests or database persistence.
 
 ### 5.3 API Contracts
 
-- **Contracts**: `cpt-cyberwiki-contract-backend-api`
+- **Contracts**: Backend REST API contracts
 - **Technology**: REST (Django REST Framework)
 - **Location**: `/api/schema/` (drf-spectacular)
 
@@ -913,7 +933,7 @@ For detailed schema, refer to Django migrations in `users`, `wiki`, `git_provide
 This section shows how each PRD use case flows through the backend architecture.
 
 #### 6.1.1 Use Case: Edit and Commit a Document
-**ID**: `cpt-cyberwiki-usecase-edit-commit`
+**ID**: `cpt-cyberwiki-design-edit-commit-realization`
 
 **Backend Flow**:
 1. Receive save request: `POST /api/wiki/documents/:docId/commit`
@@ -928,7 +948,7 @@ This section shows how each PRD use case flows through the backend architecture.
 **Requirements**: `cpt-cyberwiki-fr-save-commit`, `cpt-cyberwiki-fr-pending-changes`, `cpt-cyberwiki-fr-change-approval`
 
 #### 6.1.2 Use Case: Authenticate and Configure Git Credentials
-**ID**: `cpt-cyberwiki-usecase-auth-configure`
+**ID**: `cpt-cyberwiki-design-auth-configure-realization`
 
 **Backend Flow**:
 1. User authentication via `POST /api/auth/login` or OIDC flow
@@ -942,7 +962,7 @@ This section shows how each PRD use case flows through the backend architecture.
 **Requirements**: `cpt-cyberwiki-fr-authentication`, `cpt-cyberwiki-fr-vcs-authentication`, `cpt-cyberwiki-nfr-credential-security`
 
 #### 6.1.3 Use Case: Browse Repository File Tree
-**ID**: `cpt-cyberwiki-usecase-browse-repo`
+**ID**: `cpt-cyberwiki-design-browse-repo-realization`
 
 **Backend Flow**:
 1. Fetch repository metadata: `GET /api/repositories/:id`
@@ -955,7 +975,7 @@ This section shows how each PRD use case flows through the backend architecture.
 **Requirements**: `cpt-cyberwiki-fr-browse-spaces`, `cpt-cyberwiki-fr-file-tree-navigation`, `cpt-cyberwiki-fr-document-index`, `cpt-cyberwiki-fr-title-extraction`
 
 #### 6.1.4 Use Case: View File Content with Inline Comments
-**ID**: `cpt-cyberwiki-usecase-view-file-comments`
+**ID**: `cpt-cyberwiki-design-view-file-comments-realization`
 
 **Backend Flow**:
 1. Fetch file content: `source_provider.git_source.get_content()`
@@ -968,8 +988,10 @@ This section shows how each PRD use case flows through the backend architecture.
 
 **Requirements**: `cpt-cyberwiki-fr-file-content-display`, `cpt-cyberwiki-fr-inline-comments`, `cpt-cyberwiki-fr-comment-line-anchoring`
 
+**ADR context**: Comment system architecture ADR.
+
 #### 6.1.5 Use Case: View PRs and Navigate to VCS Provider
-**ID**: `cpt-cyberwiki-usecase-view-pr`
+**ID**: `cpt-cyberwiki-design-view-pr-realization`
 
 **Backend Flow**:
 1. List PRs: `git_provider.list_pull_requests()`
@@ -981,8 +1003,10 @@ This section shows how each PRD use case flows through the backend architecture.
 
 **Requirements**: `cpt-cyberwiki-fr-pr-listing`, `cpt-cyberwiki-fr-pr-diff-review`, `cpt-cyberwiki-fr-vcs-backend`
 
+**ADR context**: VCS integration pattern ADR.
+
 #### 6.1.6 Use Case: Tag and Link Documents Across Repositories
-**ID**: `cpt-cyberwiki-usecase-tag-link-docs`
+**ID**: `cpt-cyberwiki-design-tag-link-docs-realization`
 
 **Backend Flow**:
 1. On document indexing: Generate auto-tags using TF-IDF algorithm
@@ -1012,7 +1036,7 @@ This section shows how each PRD use case flows through the backend architecture.
 **Requirements**: `cpt-cyberwiki-fr-document-unique-id`, `cpt-cyberwiki-fr-auto-tags`, `cpt-cyberwiki-fr-custom-tags`, `cpt-cyberwiki-fr-cross-repo-linking`
 
 #### 6.1.7 Use Case: Discover Documents by Tags
-**ID**: `cpt-cyberwiki-usecase-discover-by-tags`
+**ID**: `cpt-cyberwiki-design-discover-by-tags-realization`
 
 **Backend Flow**:
 1. User requests tag cloud: `GET /api/wiki/tags/`
