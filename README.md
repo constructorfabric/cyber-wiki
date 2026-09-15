@@ -37,8 +37,8 @@ This will:
 1. **Clone the workspace sources** (if not already cloned):
    ```bash
    cd .workspace-sources/cyberfabric
-   git clone https://github.com/cyberfabric/cyber-wiki-back
-   git clone https://github.com/cyberfabric/cyber-wiki-front
+   git clone https://github.com/constructorfabric/cyber-wiki-back
+   git clone https://github.com/constructorfabric/cyber-wiki-front
    ```
 
 2. **Setup backend**:

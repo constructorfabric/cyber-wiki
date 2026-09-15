@@ -2,7 +2,7 @@ version = "1.0"
 
 [sources]
 [sources.cyber-wiki-back]
-url = "https://github.com/cyberfabric/cyber-wiki-back"
+url = "https://github.com/constructorfabric/cyber-wiki-back"
 
 [sources.cyber-wiki-front]
-url = "https://github.com/cyberfabric/cyber-wiki-front"
+url = "https://github.com/constructorfabric/cyber-wiki-front"
